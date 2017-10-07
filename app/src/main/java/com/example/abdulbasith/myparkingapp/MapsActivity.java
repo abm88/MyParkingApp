@@ -2,7 +2,10 @@ package com.example.abdulbasith.myparkingapp;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.example.abdulbasith.myparkingapp.AppServices.ConnectionService;
+import com.example.abdulbasith.myparkingapp.AppServices.IRequestInterface;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -10,9 +13,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private IRequestInterface iRequestInterface;
+    private ConnectionService connectionService;
+    private List<ParkingListModel> parkingListModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +49,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        iRequestInterface = ConnectionService.getConnectionService();
+        iRequestInterface.getParkingListModel(API_Constants.VALUE)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(this::Success, this::onError);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+    private void Success(List<ParkingListModel> parkingListModel) {
+      for (int i=0; i<parkingListModel.size(); i++) {
+            double myLatitude =  Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLat());
+            double myLangtitude = Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLng());
+            LatLng myParkingMarker = new LatLng(myLatitude,myLangtitude);
+
+              // Add a marker and move the camera
+            mMap.addMarker(new MarkerOptions().position(myParkingMarker).title(((List<ParkingListModel>) parkingListModel).get(i).getName()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myParkingMarker, 13));
+        }
+    }
+
+    private void onError(Throwable throwable) {
+        Log.i("This error --> ", throwable.getMessage());
+    }
+
+
 }
