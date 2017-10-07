@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -58,16 +59,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void Success(List<ParkingListModel> parkingListModel) {
-      for (int i=0; i<parkingListModel.size(); i++) {
-            double myLatitude =  Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLat());
-            double myLangtitude = Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLng());
-            LatLng myParkingMarker = new LatLng(myLatitude,myLangtitude);
+        mMap.setInfoWindowAdapter(new CustomInfoAdapter());
+        mMap.setOnInfoWindowClickListener(null);
+        //mMap.setOnMarkerClickListener(this);
 
-              // Add a marker and move the camera
-            mMap.addMarker(new MarkerOptions().position(myParkingMarker).title(((List<ParkingListModel>) parkingListModel).get(i).getName()));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myParkingMarker, 13));
+        Marker myMarker = null;
+      //  mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
+        for (int i = 0; i < parkingListModel.size(); i++) {
+            double myLatitude = Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLat());
+            double myLangtitude = Double.parseDouble(((List<ParkingListModel>) parkingListModel).get(i).getLng());
+            LatLng myParkingMarker = new LatLng(myLatitude, myLangtitude);
+
+            // Add a marker and move the camera
+            myMarker = mMap.addMarker(new MarkerOptions().position(myParkingMarker).title(((List<ParkingListModel>) parkingListModel).get(i).getName())
+                    .snippet("Cost PerMinute " + parkingListModel.get(i).getCostPerMinute() + "p " + "No. " + parkingListModel.get(i).getId().toString())
+            );
+            Log.i("Marker id ---------> ", myMarker.getId());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myParkingMarker, 8));
         }
-    }
+ }
 
     private void onError(Throwable throwable) {
         Log.i("This error --> ", throwable.getMessage());

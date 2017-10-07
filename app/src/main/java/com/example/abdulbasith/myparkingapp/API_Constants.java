@@ -7,7 +7,7 @@ package com.example.abdulbasith.myparkingapp;
 public class API_Constants {
     public static final String BASE_URL = "https://ridecellparking.herokuapp.com/api/v1/parkinglocations/";
 
-    public static final String API_URL = "search?lat=0.0000&lng=0.0000";
+    public static final String API_URL = "search?lat=51.5074&lng=0.1278";
 
     //Query
     public static final String QUERY = "q";
