@@ -3,6 +3,8 @@ package com.example.abdulbasith.myparkingapp;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.example.abdulbasith.myparkingapp.AppServices.ConnectionService;
 import com.example.abdulbasith.myparkingapp.AppServices.IRequestInterface;
@@ -58,11 +60,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+
     private void Success(List<ParkingListModel> parkingListModel) {
-        mMap.setInfoWindowAdapter(new CustomInfoAdapter());
-        mMap.setOnInfoWindowClickListener(null);
+//        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MapsActivity.this));
+//        mMap.setOnInfoWindowClickListener(null);
         //mMap.setOnMarkerClickListener(this);
 
+        //Set Custom InfoWindow Adapter
+        CustomInfoWindowAdapter adapter = new CustomInfoWindowAdapter(MapsActivity.this);
+        mMap.setInfoWindowAdapter(adapter);
+        MarkerOptions markerOpt = new MarkerOptions();
         Marker myMarker = null;
       //  mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
         for (int i = 0; i < parkingListModel.size(); i++) {
@@ -72,11 +79,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Add a marker and move the camera
             myMarker = mMap.addMarker(new MarkerOptions().position(myParkingMarker).title(((List<ParkingListModel>) parkingListModel).get(i).getName())
-                    .snippet("Cost PerMinute " + parkingListModel.get(i).getCostPerMinute() + "p " + "No. " + parkingListModel.get(i).getId().toString())
+                    .snippet("Cost:" + parkingListModel.get(i).getCostPerMinute() + "p/m "+"Reserve Util"+ parkingListModel.get(i).getReservedUntil())
             );
             Log.i("Marker id ---------> ", myMarker.getId());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myParkingMarker, 8));
         }
+
+        mMap.addMarker(markerOpt).showInfoWindow();
  }
 
     private void onError(Throwable throwable) {
